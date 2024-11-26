@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import os
 from telebot import types
 import numpy as np
+import webbrowser
 
 load_dotenv()
 
@@ -23,6 +24,8 @@ TeacherPhysicalEducation = os.getenv('TeacherPhysicalEducation')
 TeacherGeography = os.getenv('TeacherGeography')
 TeacherArt = os.getenv('TeacherArt')
 
+urlRegisterChildSchool = os.getenv('urlRegisterChildSchool')
+
 score_list = []
 bot = telebot.TeleBot(Token)
 
@@ -32,8 +35,20 @@ def start(message):
     start_markup = types.ReplyKeyboardMarkup()
     bt1 = types.KeyboardButton('Вычеслить средний балл')
     bt2 = types.KeyboardButton('Учителя школы')
-    start_markup.row(bt1)
-    start_markup.row(bt2)
+    bt3 = types.KeyboardButton('Записать ребенка в школу')
+    start_markup.row(bt1, bt2)
+    start_markup.row(bt3)
+    bot.send_message(message.chat.id, f'Выберите действие, {message.from_user.username}.', reply_markup=start_markup)
+    bot.register_next_step_handler(message, NextChoiceMarcup)
+
+
+def startDo(message):
+    start_markup = types.ReplyKeyboardMarkup()
+    bt1 = types.KeyboardButton('Вычеслить средний балл')
+    bt2 = types.KeyboardButton('Учителя школы')
+    bt3 = types.KeyboardButton('Записать ребенка в школу')
+    start_markup.row(bt1, bt2)
+    start_markup.row(bt3)
     bot.send_message(message.chat.id, f'Выберите действие, {message.from_user.username}.', reply_markup=start_markup)
     bot.register_next_step_handler(message, NextChoiceMarcup)
 
@@ -77,6 +92,58 @@ def NextChoiceMarcup(message):
         MarcupTeacher.row(TeacherGeographyBt, TeacherArtBt)
         MarcupTeacher.row(BackButton)
         bot.send_message(message.chat.id, f'Выбери урок.',reply_markup=MarcupTeacher)
+        bot.register_next_step_handler(message, Teachers)
+    elif message.text == 'Записать ребенка в школу':
+        webbrowser.open(url=urlRegisterChildSchool)
+
+def Teachers(message):
+    if message.text == 'Учителя русского языка и литературы':
+        bot.send_message(message.chat.id, f'{TeachersOfRussianAndLiterature}')
+        bot.register_next_step_handler(message, Teachers)
+    elif message.text == 'Учителя математики':
+        bot.send_message(message.chat.id, f'{TeachersMath}')
+        bot.register_next_step_handler(message, Teachers)
+    elif message.text == 'Учителя технологии':
+        bot.send_message(message.chat.id, f'{TeachersTechnology}')
+        bot.register_next_step_handler(message, Teachers)
+    elif message.text == 'Учителя технологии':
+        bot.send_message(message.chat.id, f'{TeachersTechnology}')
+        bot.register_next_step_handler(message, Teachers)
+    elif message.text == 'Учителя биологии':
+        bot.send_message(message.chat.id, f'{BiologyTeacher}')
+        bot.register_next_step_handler(message, Teachers)
+    elif message.text == 'Учителя англиского языка':
+        bot.send_message(message.chat.id, f'{TeacherEnglish}')
+        bot.register_next_step_handler(message, Teachers)
+    elif message.text == 'Учителя информатики':
+        bot.send_message(message.chat.id, f'{TeachersInformatics}')
+        bot.register_next_step_handler(message, Teachers)
+    elif message.text == 'Учителя истории и обществознания':
+        bot.send_message(message.chat.id, f'{TeachersHistory}')
+        bot.register_next_step_handler(message, Teachers)
+    elif message.text == 'Учителя ОБЖ':
+        bot.send_message(message.chat.id, f'{TeachersLifeSafety}')
+        bot.register_next_step_handler(message, Teachers)
+    elif message.text == 'Учителя начальной школы':
+        bot.send_message(message.chat.id, f'{PrimarySchoolTeachers}')
+        bot.register_next_step_handler(message, Teachers)
+    elif message.text == 'Учителя музыки':
+        bot.send_message(message.chat.id, f'{TeachersMusic}')
+        bot.register_next_step_handler(message, Teachers)
+    elif message.text == 'Учителя химии':
+        bot.send_message(message.chat.id, f'{TeacherChemistry}')
+        bot.register_next_step_handler(message, Teachers)
+    elif message.text == 'Учителя физкультуры':
+        bot.send_message(message.chat.id, f'{TeacherPhysicalEducation}')
+        bot.register_next_step_handler(message, Teachers)
+    elif message.text == 'Учителя географии':
+        bot.send_message(message.chat.id, f'{TeacherGeography}')
+        bot.register_next_step_handler(message, Teachers)
+    elif message.text == 'Учителя Изо':
+        bot.send_message(message.chat.id, f'{TeacherArt}')
+        bot.register_next_step_handler(message, Teachers)
+    elif message.text == 'Назад':
+        bot.register_next_step_handler(message, startDo)
 @bot.message_handler()
 def Score(message):
     if message.text == '2':
@@ -112,7 +179,7 @@ def Score(message):
             bot.register_next_step_handler(message, Score)
         score_list.clear()
     elif message.text == 'Назад':
-        bot.register_next_step_handler(message, start)
+        bot.register_next_step_handler(message, startDo)
         score_list.clear()
     elif message.text != 'Готово' or message.text != '2' or message.text != '3' or message.text != '4' or message.text != '5' or message.text != 'Назад':
         bot.send_message(message.chat.id, f'Укажите корректное значение.')
