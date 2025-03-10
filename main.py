@@ -23,8 +23,18 @@ TeacherChemistry = os.getenv('TeacherChemistry')
 TeacherPhysicalEducation = os.getenv('TeacherPhysicalEducation')
 TeacherGeography = os.getenv('TeacherGeography')
 TeacherArt = os.getenv('TeacherArt')
-
+saitSchool = os.getenv('saitSchool')
 urlRegisterChildSchool = os.getenv('urlRegisterChildSchool')
+text_pointRussianLanguage = os.getenv('pointRussianLanguage')
+text_pointMathematics = os.getenv('pointMathematics')
+text_pointPhysics = os.getenv('pointPhysics')
+text_pointChemistry = os.getenv('pointChemistry')
+text_pointBiology = os.getenv('pointBiology')
+text_pointLiterature = os.getenv('pointLiterature')
+text_pointGeography = os.getenv('pointGeography')
+text_pointHistory = os.getenv('pointHistory')
+text_pointInformatics = os.getenv('pointInformatics')
+
 
 score_list = []
 bot = telebot.TeleBot(Token)
@@ -35,22 +45,13 @@ def start(message):
     start_markup = types.ReplyKeyboardMarkup()
     bt1 = types.KeyboardButton('Вычеслить средний балл')
     bt2 = types.KeyboardButton('Учителя школы')
-    bt3 = types.KeyboardButton('Записать ребенка в школу')
+    bt3 = types.KeyboardButton('Сайт школы')
+    bt4 = types.KeyboardButton('Баллы ОГЭ')
     start_markup.row(bt1, bt2)
-    start_markup.row(bt3)
+    start_markup.row(bt3, bt4)
     bot.send_message(message.chat.id, f'Выберите действие, {message.from_user.username}.', reply_markup=start_markup)
     bot.register_next_step_handler(message, NextChoiceMarcup)
 
-
-def startDo(message):
-    start_markup = types.ReplyKeyboardMarkup()
-    bt1 = types.KeyboardButton('Вычеслить средний балл')
-    bt2 = types.KeyboardButton('Учителя школы')
-    bt3 = types.KeyboardButton('Записать ребенка в школу')
-    start_markup.row(bt1, bt2)
-    start_markup.row(bt3)
-    bot.send_message(message.chat.id, f'Выберите действие, {message.from_user.username}.', reply_markup=start_markup)
-    bot.register_next_step_handler(message, NextChoiceMarcup)
 
 @bot.message_handler()
 def NextChoiceMarcup(message):
@@ -91,10 +92,47 @@ def NextChoiceMarcup(message):
         MarcupTeacher.row(TeachersMusicBt, TeacherChemistryBt, TeacherPhysicalEducationBt)
         MarcupTeacher.row(TeacherGeographyBt, TeacherArtBt)
         MarcupTeacher.row(BackButton)
-        bot.send_message(message.chat.id, f'Выбери урок.',reply_markup=MarcupTeacher)
+        bot.send_message(message.chat.id, f'Выбери урок:',reply_markup=MarcupTeacher)
         bot.register_next_step_handler(message, Teachers)
-    elif message.text == 'Записать ребенка в школу':
-        webbrowser.open(url=urlRegisterChildSchool)
+    elif message.text == 'Сайт школы':
+        bot.send_message(message.chat.id, f'Сайт: {saitSchool}')
+    elif message.text == 'Баллы ОГЭ':
+        SchoolSubject = types.InlineKeyboardMarkup()
+        RussianLanguage_bt = types.InlineKeyboardButton('Русский язык', callback_data='RussianLanguage_bt')
+        Mathematics_bt = types.InlineKeyboardButton('Математика', callback_data='Mathematics_bt')
+        Physics_bt = types.InlineKeyboardButton('Физика', callback_data='Physics_bt')
+        Chemistry_bt = types.InlineKeyboardButton('Химия', callback_data='Chemistry_bt')
+        Biology_bt = types.InlineKeyboardButton('Биология', callback_data='Biology_bt')
+        Literature_bt = types.InlineKeyboardButton('Литература', callback_data='Literature_bt')
+        Geography_bt = types.InlineKeyboardButton('География', callback_data='Geography_bt')
+        History_bt = types.InlineKeyboardButton('История', callback_data='History_bt')
+        Informatics_bt = types.InlineKeyboardButton('Информатика', callback_data='Informatics_bt')
+        SchoolSubject.row(RussianLanguage_bt, Mathematics_bt, Physics_bt)
+        SchoolSubject.row(Chemistry_bt, Biology_bt, Literature_bt)
+        SchoolSubject.row(Geography_bt, History_bt, Informatics_bt)
+        bot.send_message(message.chat.id, f'Предметы:', reply_markup=SchoolSubject)
+
+@bot.callback_query_handler(func=lambda callback: True)
+def callback_message_OGE_Point(callback):
+    if callback.data == 'RussianLanguage_bt':
+        bot.send_message( callback.message.chat.id, text_pointRussianLanguage)
+    elif callback.data == 'Mathematics_bt':
+        bot.send_message( callback.message.chat.id, text_pointMathematics)
+    elif callback.data == 'Physics_bt':
+        bot.send_message(callback.message.chat.id, text_pointPhysics)
+    elif callback.data == 'Chemistry_bt':
+        bot.send_message(callback.message.chat.id, text_pointChemistry)
+    elif callback.data == 'Biology_bt':
+        bot.send_message(callback.message.chat.id, text_pointBiology)
+    elif callback.data == 'Literature_bt':
+        bot.send_message(callback.message.chat.id, text_pointLiterature)
+    elif callback.data == 'Geography_bt':
+        bot.send_message(callback.message.chat.id, text_pointGeography)
+    elif callback.data == 'History_bt':
+        bot.send_message(callback.message.chat.id, text_pointHistory)
+    elif callback.data == 'Informatics_bt':
+        bot.send_message(callback.message.chat.id, text_pointInformatics)
+
 
 def Teachers(message):
     if message.text == 'Учителя русского языка и литературы':
@@ -143,12 +181,13 @@ def Teachers(message):
         bot.send_message(message.chat.id, f'{TeacherArt}')
         bot.register_next_step_handler(message, Teachers)
     elif message.text == 'Назад':
-        bot.register_next_step_handler(message, startDo)
+        bot.register_next_step_handler(message, start)
 @bot.message_handler()
 def Score(message):
     if message.text == '2':
         score_list.append(2)
         bot.register_next_step_handler(message, Score)
+        score_list.clear()
     elif message.text == '3':
         score_list.append(3)
         bot.register_next_step_handler(message, Score)
@@ -157,6 +196,9 @@ def Score(message):
         bot.register_next_step_handler(message, Score)
     elif message.text == '5':
         score_list.append(5)
+        bot.register_next_step_handler(message, Score)
+    elif len(score_list) == 0 and message.text == 'Готово':
+        bot.send_message(message.chat.id, f'Введите оценки')
         bot.register_next_step_handler(message, Score)
     elif message.text == 'Готово':
         average = np.mean(score_list)
@@ -179,8 +221,7 @@ def Score(message):
             bot.register_next_step_handler(message, Score)
         score_list.clear()
     elif message.text == 'Назад':
-        bot.register_next_step_handler(message, startDo)
-        score_list.clear()
+        bot.register_next_step_handler(message, start)
     elif message.text != 'Готово' or message.text != '2' or message.text != '3' or message.text != '4' or message.text != '5' or message.text != 'Назад':
         bot.send_message(message.chat.id, f'Укажите корректное значение.')
         score_list.clear()
